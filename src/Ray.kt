@@ -1,0 +1,1 @@
+data class Ray(val origin: Vector3D, val direction: Vector3D)
