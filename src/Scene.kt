@@ -5,9 +5,10 @@ class Scene(private val objects: List<Hittable>) {
 
         for (obj in objects){
             val rec = obj.hit(ray, tMin, closestSoFar)
-            if (rec != null)
+            if (rec != null) {
                 closestSoFar = rec.t
                 hitRecord = rec
+            }
         }
         return hitRecord
     }
