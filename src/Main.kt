@@ -10,6 +10,7 @@ fun main() {
     val aspectRatio = imageWidth.toDouble() / imageHeight.toDouble()
 
     val samplesPerPixel = 100
+    val maxDepth = 50
 
     val viewportHeight = 2.0
     val viewportWidth = aspectRatio * viewportHeight
@@ -21,8 +22,8 @@ fun main() {
     val lowerLeft = origin - horizontal/2.0 - vertical/2.0 - Vector3D(0.0, 0.0, focalLength)
 
     val world = Scene(listOf(
-        Sphere(Vector3D(0.0,0.0,-1.0), 0.5),
-        Sphere(Vector3D(0.0,-100.5, -1.0), 100.0)
+        Sphere(Vector3D(0.0,0.0,-1.0), 0.5, Lambertian(Vector3D(0.1,0.1, 1.0))),
+        Sphere(Vector3D(0.0,-100.5, -1.0), 100.0, Lambertian(Vector3D(0.1, 0.8, 0.1))),
     ))
 
     //PPM header
@@ -39,7 +40,7 @@ fun main() {
                 val v = (j + randomDouble()) / (imageHeight - 1)
                 val direction = lowerLeft + horizontal * u + vertical * v - origin
                 val ray = Ray(origin, direction)
-                pixelColorSum += ray.rayColor(world)
+                pixelColorSum += ray.rayColor(world, maxDepth)
             }
             val scale = 1.0/samplesPerPixel
             val averagedColor = pixelColorSum * scale
