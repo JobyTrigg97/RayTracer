@@ -22,7 +22,7 @@ fun main() {
     val lowerLeft = origin - horizontal/2.0 - vertical/2.0 - Vector3D(0.0, 0.0, focalLength)
 
     val world = Scene(listOf(
-        Sphere(Vector3D(0.0,0.0,-1.0), 0.5, Lambertian(Vector3D(0.1,0.1, 1.0))),
+        Sphere(Vector3D(0.0,0.0,-1.0), 0.5, Metal(Vector3D(0.1,0.1, 1.0), 0.5)),
         Sphere(Vector3D(0.0,-100.5, -1.0), 100.0, Lambertian(Vector3D(0.1, 0.8, 0.1))),
     ))
 
