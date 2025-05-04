@@ -26,7 +26,7 @@ class Sphere (val center: Vector3D, val radius: Double) :Hittable {
 
         val hitPoint = ray.origin + ray.direction * root
         val vectorFromCenterToHitPoint = (hitPoint - center)
-        val rayHitPointNormal = vectorFromCenterToHitPoint / radius
-        return HitRecord(root, hitPoint, rayHitPointNormal.unit())
+        val surfaceNormal = vectorFromCenterToHitPoint / radius
+        return HitRecord(root, hitPoint, surfaceNormal.unit())
     }
 }
