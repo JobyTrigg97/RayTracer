@@ -1,10 +1,15 @@
 import java.io.File
 import kotlin.math.sqrt
+import kotlin.random.Random
+
+fun randomDouble(): Double = Random.nextDouble()
 
 fun main() {
     val imageWidth = 800
     val imageHeight = 400
     val aspectRatio = imageWidth.toDouble() / imageHeight.toDouble()
+
+    val samplesPerPixel = 100
 
     val viewportHeight = 2.0
     val viewportWidth = aspectRatio * viewportHeight
@@ -27,19 +32,24 @@ fun main() {
 
     for (j in imageHeight - 1 downTo 0) {
         for (i in 0 until imageWidth) {
-            val u = i.toDouble() / (imageWidth -1)
-            val v = j.toDouble() / (imageHeight - 1)
-            val direction = lowerLeft + horizontal * u + vertical * v - origin
-            val ray = Ray(origin, direction)
-            val pixelColor = ray.rayColor(world)
+            var pixelColorSum = Vector3D(0.0, 0.0, 0.0)
 
-            val r = (255.999 * sqrt(pixelColor.x)).toLong()
-            val g = (255.999 * sqrt(pixelColor.y)).toInt()
-            val b = (255.999 * sqrt(pixelColor.z)).toInt()
+            repeat(samplesPerPixel) {
+                val u = (i + randomDouble()) / (imageWidth - 1)
+                val v = (j + randomDouble()) / (imageHeight - 1)
+                val direction = lowerLeft + horizontal * u + vertical * v - origin
+                val ray = Ray(origin, direction)
+                pixelColorSum += ray.rayColor(world)
+            }
+            val scale = 1.0/samplesPerPixel
+            val averagedColor = pixelColorSum * scale
+            val r = (255.999 * sqrt(averagedColor.x)).toLong()
+            val g = (255.999 * sqrt(averagedColor.y)).toInt()
+            val b = (255.999 * sqrt(averagedColor.z)).toInt()
             out.append("$r $g $b ")
         }
         out.append("\n")
     }
     File("output.ppm").writeText(out.toString())
-    println("Rendered to output.ppm")
+    println("Rendered to output.ppm with anti-aliasing ($samplesPerPixel samples/pixel)")
 }
