@@ -1,6 +1,6 @@
 import kotlin.math.sqrt
 
-class Sphere (val center: Vector3D, val radius: Double) :Hittable {
+class Sphere (val center: Vector3D, val radius: Double, val material: Material) :Hittable {
 
     override fun hit(ray: Ray, tMin: Double, tMax: Double): HitRecord? {
         //r(t) = o +td
@@ -27,6 +27,6 @@ class Sphere (val center: Vector3D, val radius: Double) :Hittable {
         val hitPoint = ray.origin + ray.direction * root
         val vectorFromCenterToHitPoint = (hitPoint - center)
         val surfaceNormal = vectorFromCenterToHitPoint / radius
-        return HitRecord(root, hitPoint, surfaceNormal.unit())
+        return HitRecord(root, hitPoint, surfaceNormal.unit(), material)
     }
 }
