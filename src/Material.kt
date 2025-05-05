@@ -2,7 +2,7 @@ import kotlin.random.Random
 
 interface Material {
     fun scatter(rayIn: Ray, hitRecord: HitRecord): Pair<Ray, Vector3D>?
-
+    val albedo: Vector3D
     fun RandomPointInSphere(): Vector3D{
         while (true) {
             val p = Vector3D(

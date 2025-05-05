@@ -1,13 +1,19 @@
-class Metal(val albedo: Vector3D, val fuzz: Double) : Material {
+class Metal(
+    override val albedo: Vector3D,
+    private val fuzz: Double
+) : Material {
+
     override fun scatter(rayIn: Ray, hitRecord: HitRecord): Pair<Ray, Vector3D>? {
-        val reflected = reflect(rayIn.direction.unit(), hitRecord.surfaceNormal)
+        val unitIncoming = rayIn.direction.unit()
+        val reflected = reflect(unitIncoming, hitRecord.surfaceNormal)
         val scatterDirection = reflected + RandomPointInSphere() * fuzz
-        val scattered = Ray(hitRecord.point, scatterDirection)
-        return if (scattered.direction.dot(hitRecord.surfaceNormal) > 0) Pair(scattered, albedo) else null
+
+        return if (scatterDirection.dot(hitRecord.surfaceNormal) > 0.0) {
+            Pair(Ray(hitRecord.point, scatterDirection.unit()), albedo)
+        } else {
+            null
+        }
     }
 
-    /**
-     * Reflect vector v about normal n.
-     */
-    fun reflect(v: Vector3D, n: Vector3D): Vector3D = v - n * 2.0 * v.dot(n)
+    private fun reflect(v: Vector3D, n: Vector3D): Vector3D = v - n * (2.0 * v.dot(n))
 }

@@ -11,6 +11,6 @@ data class Vector3D(val x: Double, val y: Double, val z: Double){
     fun length() = sqrt(dot(this))
     fun unit() = this / length()
     fun nearZero() = abs(x) < 1e-8 && abs(y) < 1e-8 && abs(z) < 1e-8
-
+    operator fun unaryMinus() = Vector3D(-x, -y, -z)
 }
 

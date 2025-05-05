@@ -1,3 +1,4 @@
+// Main.kt
 import java.io.File
 import kotlin.math.sqrt
 import kotlin.random.Random
@@ -5,52 +6,56 @@ import kotlin.random.Random
 fun randomDouble(): Double = Random.nextDouble()
 
 fun main() {
-    val imageWidth = 800
-    val imageHeight = 400
-    val aspectRatio = imageWidth.toDouble() / imageHeight.toDouble()
-
+    val imageWidth      = 800
+    val imageHeight     = 400
+    val aspectRatio     = imageWidth.toDouble() / imageHeight.toDouble()
     val samplesPerPixel = 100
-    val maxDepth = 50
+    val maxDepth        = 50
 
     val viewportHeight = 2.0
-    val viewportWidth = aspectRatio * viewportHeight
-    val focalLength = 1.0
-
-    val origin = Vector3D(0.0, 0.0, 0.0)
-    val horizontal = Vector3D(viewportWidth, 0.0, 0.0)
-    val vertical = Vector3D(0.0, viewportHeight, 0.0)
-    val lowerLeft = origin - horizontal/2.0 - vertical/2.0 - Vector3D(0.0, 0.0, focalLength)
-
+    val viewportWidth  = aspectRatio * viewportHeight
+    val camera = Camera.basicCamera(viewportWidth, viewportHeight, focalLength = 1.0)
     val world = Scene(listOf(
-        Sphere(Vector3D(0.0,0.0,-1.0), 0.5, Metal(Vector3D(0.1,0.1, 1.0), 0.5)),
-        Sphere(Vector3D(0.0,-100.5, -1.0), 100.0, Lambertian(Vector3D(0.1, 0.8, 0.1))),
+        Sphere(Vector3D(0.0,  0.0, -1.0), 0.5, Metal(Vector3D(.1, .1, 1.0), fuzz = 0.5)),
+        Sphere(Vector3D(0.0, -100.5, -1.0),100.0, Lambertian(Vector3D(.073, .161, .053)))
     ))
 
-    //PPM header
+    val sunDirection = Vector3D(2.0, 1.0, -1.0).unit()
+    val sunLight     = DirectionalLight(
+        direction = sunDirection,
+        intensity = Vector3D(5.0, 5.0, 5.0)  // boost intensity if you want brighter specular
+    )
+    val lights = listOf(sunLight)
+
     val out = StringBuilder().apply {
         append("P3\n$imageWidth $imageHeight\n255\n")
     }
 
-    for (j in imageHeight - 1 downTo 0) {
-        for (i in 0 until imageWidth) {
-            var pixelColorSum = Vector3D(0.0, 0.0, 0.0)
-
+    for (y in imageHeight - 1 downTo 0) {
+        for (x in 0 until imageWidth) {
+            var pixelColor = Vector3D(0.0, 0.0, 0.0)
             repeat(samplesPerPixel) {
-                val u = (i + randomDouble()) / (imageWidth - 1)
-                val v = (j + randomDouble()) / (imageHeight - 1)
-                val direction = lowerLeft + horizontal * u + vertical * v - origin
-                val ray = Ray(origin, direction)
-                pixelColorSum += ray.rayColor(world, maxDepth)
+                val u = (x + randomDouble()) / (imageWidth - 1)
+                val v = (y + randomDouble()) / (imageHeight - 1)
+                val ray = camera.getRay(u, v)
+                pixelColor += ray.rayColor(world, lights, maxDepth)
             }
-            val scale = 1.0/samplesPerPixel
-            val averagedColor = pixelColorSum * scale
-            val r = (255.999 * sqrt(averagedColor.x)).toLong()
-            val g = (255.999 * sqrt(averagedColor.y)).toInt()
-            val b = (255.999 * sqrt(averagedColor.z)).toInt()
+            val scale = 1.0 / samplesPerPixel
+            val scaled = pixelColor * scale
+
+            val clamped = Vector3D(
+                scaled.x.coerceIn(0.0, 1.0),
+                scaled.y.coerceIn(0.0, 1.0),
+                scaled.z.coerceIn(0.0, 1.0)
+            )
+            val r = (255.999 * sqrt(clamped.x)).toInt()
+            val g = (255.999 * sqrt(clamped.y)).toInt()
+            val b = (255.999 * sqrt(clamped.z)).toInt()
             out.append("$r $g $b ")
         }
         out.append("\n")
     }
+
     File("output.ppm").writeText(out.toString())
-    println("Rendered to output.ppm with anti-aliasing ($samplesPerPixel samples/pixel)")
+    println("Rendered output.ppm")
 }
