@@ -16,7 +16,8 @@ class Ray(val origin: Vector3D, val direction: Vector3D) {
             val normal    = hitRecord.surfaceNormal
             val viewDir   = (-direction).unit()
             val bias      = normal * 1e-4
-
+            val ambientStrength = 0.1
+            val ambient = mat.albedo * ambientStrength
             var isLit = false
             for (light in lights) {
                 val L = light.direction.unit()
@@ -58,7 +59,7 @@ class Ray(val origin: Vector3D, val direction: Vector3D) {
                 attenuation * scatteredRay.rayColor(world, lights, depth - 1)
             } ?: Vector3D(0.0, 0.0, 0.0)
 
-            return diffuse + specular + indirect
+            return ambient + diffuse + specular + indirect
         }
 
         // background gradient
