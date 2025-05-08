@@ -1,4 +1,3 @@
-// Main.kt
 import java.io.File
 import kotlin.math.sqrt
 import kotlin.random.Random
@@ -9,23 +8,29 @@ fun main() {
     val imageWidth      = 800
     val imageHeight     = 400
     val aspectRatio     = imageWidth.toDouble() / imageHeight.toDouble()
-    val samplesPerPixel = 100
+    val samplesPerPixel = 300
     val maxDepth        = 50
 
     val viewportHeight = 2.0
     val viewportWidth  = aspectRatio * viewportHeight
     val camera = Camera.basicCamera(viewportWidth, viewportHeight, focalLength = 1.0)
     val world = Scene(listOf(
-        Sphere(Vector3D(0.0,  0.0, -1.0), 0.5, Metal(Vector3D(.1, .1, 1.0), fuzz = 0.5)),
-        Sphere(Vector3D(0.0, -100.5, -1.0),100.0, Lambertian(Vector3D(.073, .161, .053)))
+        Sphere(Vector3D(0.0,  -0.5, -1.0), 0.3, Metal(Vector3D(.1, .1, 1.0), fuzz = 0.5)),
+        Torus(Vector3D(0.0,  0.0, -1.0),Vector3D(0.0,.0,5.0),.25,.1, Metal(Vector3D(.1, .1, 1.0), fuzz = 0.0)),
+        Sphere(Vector3D(0.0, -100.5, -1.0),100.0, Lambertian(Vector3D(.073, .161, .053))),
+
     ))
 
-    val sunDirection = Vector3D(2.0, 1.0, -1.0).unit()
+    val sunDirection = Vector3D(2.0, 2.0, -2.0).unit()
     val sunLight     = DirectionalLight(
         direction = sunDirection,
-        intensity = Vector3D(5.0, 5.0, 5.0)  // boost intensity if you want brighter specular
+        intensity = Vector3D(1.0, 1.0, 1.0)  // boost intensity if you want brighter specular
     )
-    val lights = listOf(sunLight)
+    val sunLight2 = DirectionalLight(
+        direction = Vector3D(-2.0, 2.0, -1.0),
+        intensity = Vector3D(3.0, 3.0, 3.0)  // boost intensity if you want brighter specular
+    )
+    val lights = listOf(sunLight, sunLight2)
 
     val out = StringBuilder().apply {
         append("P3\n$imageWidth $imageHeight\n255\n")
